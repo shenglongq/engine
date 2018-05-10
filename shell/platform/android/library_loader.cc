@@ -6,7 +6,6 @@
 #include "flutter/shell/platform/android/flutter_main.h"
 #include "flutter/shell/platform/android/platform_view_android.h"
 #include "flutter/shell/platform/android/vsync_waiter_android.h"
-#include "flutter/shell/platform/android/native_wx_2_dart_bridge.h"
 
 // This is called by the VM when the shared library is first loaded.
 JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
@@ -26,10 +25,6 @@ JNIEXPORT jint JNI_OnLoad(JavaVM* vm, void* reserved) {
 
   // Register VSyncWaiter.
   result = shell::VsyncWaiterAndroid::Register(env);
-  FXL_CHECK(result);
-
-  // Register TestJni.
-  result = shell::NativeWx2DartBridge::Register(env);
   FXL_CHECK(result);
 
   return JNI_VERSION_1_4;

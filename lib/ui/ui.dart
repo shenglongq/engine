@@ -31,5 +31,3 @@ part 'pointer.dart';
 part 'semantics.dart';
 part 'text.dart';
 part 'window.dart';
-//part 'weex.dart';
-//part 'wx_bridge.dart';

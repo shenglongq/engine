@@ -65,19 +65,6 @@ class Window final {
 
   static void RegisterNatives(tonic::DartLibraryNatives* natives);
 
-  //weex function
-  //void SetJSFrmVersion(const char* jsversion);
-
-  //void ReportException(const char *instanceId, const char *func, const char *exception_string);
-
-  //void CallNative(const char *jInstanceId,const char *jTaskString,const char *jCallback);
-
-  //void CallAddElement(const char *jInstanceId,const char *jref,const char *jdomString,const char *jindex,const char *jCallback);
-
-  //void SetTimeoutNative(const char *callbackID,const char *time);
-
-  //void NativeLog(const char *message);
-
  private:
   WindowClient* client_;
   tonic::DartPersistentValue library_;

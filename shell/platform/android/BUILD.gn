@@ -42,8 +42,6 @@ shared_library("flutter_shell_native") {
     "platform_view_android_jni.h",
     "vsync_waiter_android.cc",
     "vsync_waiter_android.h",
-    "native_wx_2_dart_bridge.cc",
-    "native_wx_2_dart_bridge.h",
   ]
 
   deps = [
@@ -128,9 +126,6 @@ java_library("flutter_shell_java") {
     "io/flutter/view/ResourcePaths.java",
     "io/flutter/view/TextureRegistry.java",
     "io/flutter/view/VsyncWaiter.java",
-    "io/flutter/weex/NativeWx2DartBridge.java",
-    "io/flutter/weex/WX2DartBridge.java",
-    "io/flutter/weex/WXParams.java",
   ]
 
   deps = [

@@ -22,8 +22,6 @@
 #include "flutter/shell/platform/android/flutter_main.h"
 #include "lib/fxl/arraysize.h"
 
-#include <android/log.h>
-
 #define ANDROID_SHELL_HOLDER \
   (reinterpret_cast<shell::AndroidShellHolder*>(shell_holder))
 
@@ -176,7 +174,6 @@ std::unique_ptr<IsolateConfiguration> CreateIsolateConfiguration(
       [&asset_manager](const std::string& snapshot_name)
       -> std::unique_ptr<IsolateConfiguration> {
     std::vector<uint8_t> blob;
-    __android_log_print(ANDROID_LOG_ERROR,"===========CreateIsolateConfiguration===========" ,"======%s=========",snapshot_name.c_str());
     if (asset_manager.GetAsBuffer(snapshot_name, &blob)) {
       return IsolateConfiguration::CreateForSnapshot(
           std::make_unique<fml::DataMapping>(std::move(blob)));

@@ -291,64 +291,6 @@ void Window::CompletePlatformMessageResponse(int response_id,
   response->Complete(std::move(data));
 }
 
-/*
-void Window::SetJSFrmVersion(const char* jsversion){
-  DartInvokeField(
-        library_.value(), "_setJSFrmVersion",
-        {
-            ToDart(jsversion)
-        });
-}
-
-void Window::ReportException(const char *instanceId, const char *func, const char *exception_string){
-  DartInvokeField(
-        library_.value(), "_reportException",
-        {
-            ToDart(instanceId),
-            ToDart(func),
-            ToDart(exception_string)
-        });
-}
-
-void Window::CallNative(const char *jInstanceId,const char *jTaskString,const char *jCallback){
-    DartInvokeField(
-        library_.value(), "_callNative",
-        {
-            ToDart(jInstanceId),
-            ToDart(jTaskString),
-            ToDart(jCallback)
-        });
-}
-
-void Window::CallAddElement(const char *jInstanceId,const char *jref,const char *jdomString,const char *jindex,const char *jCallback){
-    DartInvokeField(
-        library_.value(), "_callAddElement",
-        {
-            ToDart(jInstanceId),
-            ToDart(jref),
-            ToDart(jdomString),
-            ToDart(jindex),
-            ToDart(jCallback)
-        });
-}
-
-void Window::SetTimeoutNative(const char *callbackID,const char *time){
-    DartInvokeField(
-        library_.value(), "_setTimeoutNative",
-        {
-            ToDart(callbackID),
-            ToDart(time)
-        });
-}
-
-void Window::NativeLog(const char *message){
-    DartInvokeField(
-        library_.value(), "_nativeLog",
-        {
-            ToDart(message)
-        });
-}
-*/
 void Window::RegisterNatives(tonic::DartLibraryNatives* natives) {
   natives->Register({
       {"Window_defaultRouteName", DefaultRouteName, 1, true},

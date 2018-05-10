@@ -25,9 +25,6 @@ typedef void PlatformMessageResponseCallback(ByteData data);
 /// Signature for [Window.onPlatformMessage].
 typedef void PlatformMessageCallback(String name, ByteData data, PlatformMessageResponseCallback callback);
 
-/// Signature for [Window.onAddElementCallback].
-//typedef int AddElementCallback(AddElement element);
-
 /// States that an application can be in.
 ///
 /// The values below describe notifications from the operating system.
@@ -731,18 +728,6 @@ class Window {
       registrationZone.runUnaryGuarded(callback, data);
     };
   }
-
-//
-//  AddElementCallback get onAddElementCallback => _onAddElementCallback;
-//  AddElementCallback _onAddElementCallback;
-//  Zone _onAddElementCallbackZone;
-//  set onAddElementCallback(AddElementCallback callback) {
-//    _onAddElementCallback = callback;
-//    _onAddElementCallbackZone = Zone.current;
-//  }
-
-  //WxBridge get getWxBridge => _wxBridge;
-  //WxBridge _wxBridge = new WxBridge._();
 }
 
 /// The [Window] singleton. This object exposes the size of the display, the

@@ -38,8 +38,9 @@ Engine::Engine(Delegate& delegate,
                std::string thread_label,
                component::ApplicationContext& application_context,
                blink::Settings settings,
+               fxl::RefPtr<blink::DartSnapshot> isolate_snapshot,
                fidl::InterfaceRequest<views_v1_token::ViewOwner> view_owner,
-               const UniqueFDIONS& fdio_ns,
+               UniqueFDIONS fdio_ns,
                fidl::InterfaceRequest<component::ServiceProvider>
                    outgoing_services_request)
     : delegate_(delegate),
@@ -157,11 +158,17 @@ Engine::Engine(Delegate& delegate,
         });
       });
 
+  if (!isolate_snapshot) {
+    isolate_snapshot =
+        blink::DartVM::ForProcess(settings_)->GetIsolateSnapshot();
+  }
+
   shell_ = shell::Shell::Create(
-      task_runners,             // host task runners
-      settings_,                // shell launch settings
-      on_create_platform_view,  // platform view create callback
-      on_create_rasterizer      // rasterizer create callback
+      task_runners,                 // host task runners
+      settings_,                    // shell launch settings
+      std::move(isolate_snapshot),  // isolate snapshot
+      on_create_platform_view,      // platform view create callback
+      on_create_rasterizer          // rasterizer create callback
   );
 
   if (!shell_) {
@@ -173,16 +180,16 @@ Engine::Engine(Delegate& delegate,
   // Shell has been created. Before we run the engine, setup the isolate
   // configurator.
   {
-    PlatformView* platform_view =
-        static_cast<PlatformView*>(shell_->GetPlatformView().get());
-    auto& view = platform_view->GetMozartView();
-    fidl::InterfaceHandle<views_v1::ViewContainer> view_container;
-    view->GetContainer(view_container.NewRequest());
+    auto view_container =
+        static_cast<PlatformView*>(shell_->GetPlatformView().get())
+            ->TakeViewContainer();
+
     component::ApplicationEnvironmentPtr application_environment;
     application_context.ConnectToEnvironmentService(
         application_environment.NewRequest());
+
     isolate_configurator_ = std::make_unique<IsolateConfigurator>(
-        fdio_ns,                              //
+        std::move(fdio_ns),                   //
         std::move(view_container),            //
         std::move(application_environment),   //
         std::move(outgoing_services_request)  //
@@ -208,6 +215,7 @@ Engine::Engine(Delegate& delegate,
 }
 
 Engine::~Engine() {
+  shell_.reset();
   for (const auto& thread : host_threads_) {
     thread.TaskRunner()->PostTask(
         []() { fsl::MessageLoop::GetCurrent()->PostQuitTask(); });
@@ -234,7 +242,7 @@ std::pair<bool, uint32_t> Engine::GetEngineReturnCode() const {
 
 void Engine::OnMainIsolateStart() {
   if (!isolate_configurator_ ||
-      !isolate_configurator_->ConfigureCurrentIsolate()) {
+      !isolate_configurator_->ConfigureCurrentIsolate(this)) {
     FXL_LOG(ERROR) << "Could not configure some native embedder bindings for a "
                       "new root isolate.";
   }
@@ -266,6 +274,27 @@ void Engine::OnSessionMetricsDidChange(double device_pixel_ratio) {
               ->UpdateViewportMetrics(device_pixel_ratio);
         }
       });
+}
+
+// |mozart::NativesDelegate|
+void Engine::OfferServiceProvider(
+    fidl::InterfaceHandle<component::ServiceProvider> service_provider,
+    fidl::VectorPtr<fidl::StringPtr> services) {
+  if (!shell_) {
+    return;
+  }
+
+  shell_->GetTaskRunners().GetPlatformTaskRunner()->PostTask(
+      fxl::MakeCopyable([platform_view = shell_->GetPlatformView(),       //
+                         service_provider = std::move(service_provider),  //
+                         services = std::move(services)                   //
+  ]() mutable {
+        if (platform_view) {
+          reinterpret_cast<flutter::PlatformView*>(platform_view.get())
+              ->OfferServiceProvider(std::move(service_provider),
+                                     std::move(services));
+        }
+      }));
 }
 
 }  // namespace flutter

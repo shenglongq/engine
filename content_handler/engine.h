@@ -13,12 +13,13 @@
 #include "lib/fsl/threading/thread.h"
 #include "lib/fxl/macros.h"
 #include "lib/fxl/memory/weak_ptr.h"
+#include "lib/ui/flutter/sdk_ext/src/natives.h"
 
 namespace flutter {
 
 // Represents an instance of running Flutter engine along with the threads that
 // host the same.
-class Engine final {
+class Engine final : public mozart::NativesDelegate {
  public:
   class Delegate {
    public:
@@ -29,8 +30,9 @@ class Engine final {
          std::string thread_label,
          component::ApplicationContext& application_context,
          blink::Settings settings,
+         fxl::RefPtr<blink::DartSnapshot> isolate_snapshot,
          fidl::InterfaceRequest<views_v1_token::ViewOwner> view_owner,
-         const UniqueFDIONS& fdio_ns,
+         UniqueFDIONS fdio_ns,
          fidl::InterfaceRequest<component::ServiceProvider>
              outgoing_services_request);
 
@@ -56,6 +58,11 @@ class Engine final {
   void Terminate();
 
   void OnSessionMetricsDidChange(double device_pixel_ratio);
+
+  // |mozart::NativesDelegate|
+  void OfferServiceProvider(
+      fidl::InterfaceHandle<component::ServiceProvider> service_provider,
+      fidl::VectorPtr<fidl::StringPtr> services);
 
   FXL_DISALLOW_COPY_AND_ASSIGN(Engine);
 };

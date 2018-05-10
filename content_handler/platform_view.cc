@@ -24,7 +24,7 @@ template <class T>
 void SetInterfaceErrorHandler(fidl::InterfacePtr<T>& interface,
                               std::string name) {
   interface.set_error_handler(
-      [name]() { FXL_DLOG(ERROR) << "Interface error on: " << name; });
+      [name]() { FXL_LOG(ERROR) << "Interface error on: " << name; });
 }
 
 PlatformView::PlatformView(
@@ -66,6 +66,10 @@ PlatformView::PlatformView(
   // Get the services from the created view.
   view_->GetServiceProvider(service_provider_.NewRequest());
 
+  // Get the view conatiner. This will need to be returned to the isolate
+  // configurator so that it can setup Mozart bindings later.
+  view_->GetContainer(view_container_.NewRequest());
+
   // Get the input connection from the services of the view.
   component::ConnectToService(service_provider_.get(),
                               input_connection_.NewRequest());
@@ -85,6 +89,12 @@ PlatformView::PlatformView(
 
 PlatformView::~PlatformView() = default;
 
+void PlatformView::OfferServiceProvider(
+    fidl::InterfaceHandle<component::ServiceProvider> service_provider,
+    fidl::VectorPtr<fidl::StringPtr> services) {
+  view_->OfferServiceProvider(std::move(service_provider), std::move(services));
+}
+
 void PlatformView::RegisterPlatformMessageHandlers() {
   platform_message_handlers_[kFlutterPlatformChannel] =
       std::bind(&PlatformView::HandleFlutterPlatformChannelPlatformMessage,  //
@@ -96,9 +106,9 @@ void PlatformView::RegisterPlatformMessageHandlers() {
                 std::placeholders::_1);
 }
 
-views_v1::ViewPtr& PlatformView::GetMozartView() {
-  FXL_DCHECK(view_.is_bound());
-  return view_;
+fidl::InterfaceHandle<views_v1::ViewContainer>
+PlatformView::TakeViewContainer() {
+  return std::move(view_container_);
 }
 
 // |views_v1::ViewListener|
@@ -497,10 +507,12 @@ void PlatformView::HandleFlutterTextInputChannelPlatformMessage(
     // TODO(abarth): Read the keyboard type from the configuration.
     current_text_input_client_ = args->value[0].GetInt();
 
+    auto initial_text_input_state = input::TextInputState{};
+    initial_text_input_state.text = "";
     input_connection_->GetInputMethodEditor(
         input::KeyboardType::TEXT,       // keyboard type
         input::InputMethodAction::DONE,  // input method action
-        input::TextInputState{},         // initial state
+        initial_text_input_state,        // initial state
         ime_client_.NewBinding(),        // client
         ime_.NewRequest()                // editor
     );
@@ -512,6 +524,7 @@ void PlatformView::HandleFlutterTextInputChannelPlatformMessage(
       }
       const auto& args = args_it->value;
       input::TextInputState state;
+      state.text = "";
       // TODO(abarth): Deserialize state.
       auto text = args.FindMember("text");
       if (text != args.MemberEnd() && text->value.IsString())

@@ -9,12 +9,14 @@
 #include <cstdint>
 #include <string>
 
+#include <android/log.h>
+
 #include "flutter/fml/macros.h"
 
 #ifndef TRACE_EVENT_HIDE_MACROS
 
 #define TRACE_EVENT0(category_group, name)           \
-  ::fml::tracing::TraceEvent0(category_group, name); \
+  __android_log_print(ANDROID_LOG_ERROR,category_group ,name); \
   ::fml::tracing::ScopedInstantEnd __trace_end0_##__LINE__(name);
 
 #define TRACE_EVENT1(category_group, name, arg1_name, arg1_val)           \

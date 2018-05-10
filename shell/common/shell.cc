@@ -29,6 +29,8 @@
 #include "third_party/dart/runtime/include/dart_tools_api.h"
 #include "third_party/skia/include/core/SkGraphics.h"
 
+#include <android/log.h>
+
 #ifdef ERROR
 #undef ERROR
 #endif
@@ -792,6 +794,8 @@ bool Shell::OnServiceProtocolRunInView(
 
   auto main_script_file =
       files::AbsolutePath(params.at("mainScript").ToString());
+
+      __android_log_print(ANDROID_LOG_ERROR,"===========InferFromSettings===========" ,"======%s=========",main_script_file.c_str());
 
   auto isolate_configuration =
       FileNameIsDill(main_script_file)

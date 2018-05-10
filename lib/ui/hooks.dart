@@ -206,3 +206,34 @@ PointerDataPacket _unpackPointerDataPacket(ByteData packet) {
   }
   return new PointerDataPacket(data: data);
 }
+
+//void _dispatchAddElement(String instanceId, String ref,String dom,String index, String callback) {
+//  if (window.onAddElementCallback != null)
+//    _invoke1<AddElement>(window.onAddElementCallback, window._onAddElementCallbackZone, new AddElement(instanceId:instanceId,ref:ref,dom:dom,index:index,callback:callback));
+//}
+
+////for weex
+//void _setJSFrmVersion(String jsversion){
+//  window.getWxBridge._jSFMVersion=jsversion;
+//}
+//
+//void _reportException(String instanceId,String func,String exception_string){
+//  //
+//
+//}
+//
+//void _callNative(String instanceId,String taskString,String callback){
+//  //
+//}
+//
+//void _callAddElement(String instanceId,String ref,String domString,String index,String callback){
+//  //
+//}
+//
+//void _setTimeoutNative(String callbackID,String time){
+//  //
+//}
+//
+//void _nativeLog(String message){
+//  //
+//}

@@ -42,6 +42,7 @@ bool AssetManager::GetAsBuffer(const std::string& asset_name,
     return false;
   }
   TRACE_EVENT0("flutter", "AssetManager::GetAsBuffer");
+  __android_log_print(ANDROID_LOG_ERROR,"===========GetAsBuffer===========" ,"========%s=========",asset_name.c_str());
   for (const auto& resolver : resolvers_) {
     if (resolver->GetAsBuffer(asset_name, data)) {
       return true;

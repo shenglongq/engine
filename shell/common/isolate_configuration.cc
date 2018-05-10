@@ -6,6 +6,8 @@
 
 #include "flutter/runtime/dart_vm.h"
 
+#include <android/log.h>
+
 #ifdef ERROR
 #undef ERROR
 #endif
@@ -57,6 +59,9 @@ class SnapshotIsolateConfiguration : public IsolateConfiguration {
     if (blink::DartVM::IsRunningPrecompiledCode()) {
       return false;
     }
+
+    __android_log_print(ANDROID_LOG_ERROR,"===========DoPrepareIsolate===========" ,"=======%d========",snapshot_->GetSize());
+
     return isolate.PrepareForRunningFromSnapshot(std::move(snapshot_));
   }
 
@@ -91,6 +96,9 @@ class SourceIsolateConfiguration final : public IsolateConfiguration {
 std::unique_ptr<IsolateConfiguration> IsolateConfiguration::InferFromSettings(
     const blink::Settings& settings,
     fxl::RefPtr<blink::AssetManager> asset_manager) {
+
+    __android_log_print(ANDROID_LOG_ERROR,"===========InferFromSettings===========" ,"======dddddd=========");
+
   // Running in AOT mode.
   if (blink::DartVM::IsRunningPrecompiledCode()) {
     return CreateForPrecompiledCode();
@@ -100,6 +108,7 @@ std::unique_ptr<IsolateConfiguration> IsolateConfiguration::InferFromSettings(
   {
     const auto& main = settings.main_dart_file_path;
     const auto& packages = settings.packages_file_path;
+
     if (main.size() != 0 && packages.size() != 0) {
       return CreateForSource(std::move(main), std::move(packages));
     }
